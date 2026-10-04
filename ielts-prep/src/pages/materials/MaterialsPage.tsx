@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import {
   BookOpen,
   Headphones,
@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   FileCheck,
   Play,
+  Pause,
   Volume2
 } from 'lucide-react'
 
@@ -93,8 +94,44 @@ export function MaterialsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedBookForAudio, setSelectedBookForAudio] = useState(18)
 
+  const [playingTrack, setPlayingTrack] = useState<{ series: number; test: number } | null>(null)
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [totalDuration, setTotalDuration] = useState(1800)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  const handleToggleTrack = (series: number, test: number) => {
+    if (playingTrack?.series === series && playingTrack?.test === test) {
+      if (isAudioPlaying) {
+        audioRef.current?.pause()
+        setIsAudioPlaying(false)
+      } else {
+        audioRef.current?.play().then(() => setIsAudioPlaying(true)).catch(() => {})
+      }
+    } else {
+      setPlayingTrack({ series, test })
+      setCurrentTime(0)
+      if (audioRef.current) {
+        audioRef.current.src = `/audio/Cambridge_IELTS_${series}_-_Listening_Test_${test}.mp3`
+        audioRef.current.play().then(() => setIsAudioPlaying(true)).catch(() => {})
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
+      <audio
+        ref={audioRef}
+        onTimeUpdate={() => {
+          if (audioRef.current) setCurrentTime(audioRef.current.currentTime)
+        }}
+        onLoadedMetadata={() => {
+          if (audioRef.current && audioRef.current.duration) setTotalDuration(audioRef.current.duration)
+        }}
+        onPlay={() => setIsAudioPlaying(true)}
+        onPause={() => setIsAudioPlaying(false)}
+        onEnded={() => setIsAudioPlaying(false)}
+      />
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -215,40 +252,62 @@ export function MaterialsPage() {
             </select>
           </div>
 
+          {/* Interactive Audio Tracks */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((testNum) => (
-              <div key={testNum} className="bg-white border border-stone-200 rounded-xl p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 className="font-bold text-sm text-stone-900">
-                      Cambridge {selectedBookForAudio} · Test {testNum} Listening
-                    </h4>
-                    <span className="text-xs text-stone-400">
-                      Cambridge_IELTS_{selectedBookForAudio}_-_Listening_Test_{testNum}.mp3
+            {[1, 2, 3, 4].map((testNum) => {
+              const isCurrentTrack = playingTrack?.series === selectedBookForAudio && playingTrack?.test === testNum
+              const trackPlaying = isCurrentTrack && isAudioPlaying
+
+              return (
+                <div key={testNum} className={`bg-white border rounded-xl p-4 shadow-sm transition-all ${
+                  trackPlaying ? 'border-primary-500 ring-2 ring-primary-100' : 'border-stone-200'
+                }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h4 className="font-bold text-sm text-stone-900">
+                        Cambridge {selectedBookForAudio} · Test {testNum} Listening
+                      </h4>
+                      <span className="text-xs text-stone-400 font-mono">
+                        Cambridge_IELTS_{selectedBookForAudio}_-_Listening_Test_{testNum}.mp3
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
+                      ~30 mins
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
-                    30 mins
-                  </span>
-                </div>
 
-                <div className="bg-stone-50 p-3 rounded-lg border border-stone-200 flex items-center gap-3 mt-2">
-                  <button className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700">
-                    <Play size={14} fill="currentColor" />
-                  </button>
-                  <div className="flex-1">
-                    <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary-600 w-0" />
+                  <div className="bg-stone-50 p-3 rounded-lg border border-stone-200 flex items-center gap-3 mt-2">
+                    <button
+                      onClick={() => handleToggleTrack(selectedBookForAudio, testNum)}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-white transition-all shadow-sm cursor-pointer ${
+                        trackPlaying ? 'bg-amber-600 hover:bg-amber-700' : 'bg-primary-600 hover:bg-primary-700'
+                      }`}
+                    >
+                      {trackPlaying ? <Pause size={15} fill="currentColor" /> : <Play size={15} fill="currentColor" />}
+                    </button>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-stone-700 mb-1">
+                        <span>{trackPlaying ? 'Playing Audio' : isCurrentTrack ? 'Paused' : 'Ready to stream'}</span>
+                        <span className="font-mono text-stone-500">
+                          {isCurrentTrack ? `${Math.floor(currentTime / 60)}:${Math.floor(currentTime % 60).toString().padStart(2, '0')}` : '0:00'} / ~30:00
+                        </span>
+                      </div>
+                      <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary-600 transition-all duration-300 rounded-full"
+                          style={{
+                            width: isCurrentTrack && totalDuration > 0 ? `${(currentTime / totalDuration) * 100}%` : '0%'
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                      <span>0:00</span>
-                      <span>~30:00</span>
-                    </div>
+
+                    <Volume2 size={16} className="text-stone-400" />
                   </div>
-                  <Volume2 size={16} className="text-stone-400" />
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

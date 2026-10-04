@@ -2,14 +2,21 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Volume2,
+  VolumeX,
   Clock,
   HelpCircle,
   Flag,
   ChevronLeft,
   ChevronRight,
   Headphones,
+  Play,
+  Pause,
+  RotateCcw,
+  FastForward,
+  Rewind,
+  AlertCircle,
   CheckCircle2,
-  AlertCircle
+  Sparkles
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 
@@ -35,6 +42,14 @@ const PART_1_QUESTIONS: QuestionItem[] = [
   { id: 10, prompt: 'Bring original copy of:', fieldPrefix: '', fieldSuffix: 'certificate', type: 'text' },
 ]
 
+// Part start timestamps (approximate Cambridge section bookmarks in seconds)
+const PART_TIMESTAMPS: Record<1 | 2 | 3 | 4, number> = {
+  1: 0,
+  2: 390,  // ~6m30s
+  3: 825,  // ~13m45s
+  4: 1250  // ~20m50s
+}
+
 export function ListeningExamPage() {
   const { attemptId } = useParams<{ attemptId: string }>()
   const [searchParams] = useSearchParams()
@@ -42,15 +57,28 @@ export function ListeningExamPage() {
   const navigate = useNavigate()
   const { profile, user } = useAuthStore()
 
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
   const [currentPart, setCurrentPart] = useState<1 | 2 | 3 | 4>(1)
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [flagged, setFlagged] = useState<Record<number, boolean>>({})
   const [secondsRemaining, setSecondsRemaining] = useState(30 * 60)
-  const [volume, setVolume] = useState(80)
+  const [volume, setVolume] = useState(85)
+  const [isMuted, setIsMuted] = useState(false)
   const [showTime, setShowTime] = useState(true)
 
-  // Timer countdown
+  // Audio Playback States
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(1800) // Default 30 mins
+  const [audioError, setAudioError] = useState(false)
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0)
+
+  // Resolve audio URL based on attemptId (e.g. c18-test-1, c15-t1-l)
+  const resolvedAudioSrc = `/audio/${attemptId || 'c18-test-1'}`
+
+  // Exam Countdown Timer
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsRemaining((prev) => {
@@ -64,9 +92,64 @@ export function ListeningExamPage() {
     return () => clearInterval(timer)
   }, [])
 
+  // Sync Volume
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100
+    }
+  }, [volume, isMuted])
+
+  // Play / Pause Toggle
+  const togglePlay = () => {
+    if (!audioRef.current) return
+
+    if (isPlaying) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    } else {
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true)
+          setAudioError(false)
+        })
+        .catch((err) => {
+          console.warn('Playback error or blocked by autoplay policy:', err)
+          setAudioError(true)
+        })
+    }
+  }
+
+  // Seek audio
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = Number(e.target.value)
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime
+      setCurrentTime(newTime)
+    }
+  }
+
+  // Skip relative seconds
+  const skipSeconds = (secs: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = Math.max(0, Math.min(duration, audioRef.current.currentTime + secs))
+    }
+  }
+
+  // Jump to section bookmark
+  const jumpToPart = (part: 1 | 2 | 3 | 4) => {
+    setCurrentPart(part)
+    setCurrentQuestion((part - 1) * 10 + 1)
+    const targetSeconds = PART_TIMESTAMPS[part]
+    if (audioRef.current && Number.isFinite(targetSeconds)) {
+      audioRef.current.currentTime = targetSeconds
+      setCurrentTime(targetSeconds)
+    }
+  }
+
   const formatTimer = (secs: number) => {
     const m = Math.floor(secs / 60)
-    const s = secs % 60
+    const s = Math.floor(secs % 60)
     return `${m}:${s < 10 ? '0' : ''}${s}`
   }
 
@@ -84,12 +167,33 @@ export function ListeningExamPage() {
   }
 
   const completeSection = () => {
-    // Navigate to next section (Reading) or review
+    if (audioRef.current) audioRef.current.pause()
     navigate(`/exam/reading/${attemptId || 'c18-test-1'}`)
   }
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#f0f2f5] text-stone-900 select-none overflow-hidden font-sans">
+      {/* Hidden Native Audio Element with Event Handlers */}
+      <audio
+        ref={audioRef}
+        src={resolvedAudioSrc}
+        preload="auto"
+        onTimeUpdate={() => {
+          if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime)
+          }
+        }}
+        onLoadedMetadata={() => {
+          if (audioRef.current && audioRef.current.duration) {
+            setDuration(audioRef.current.duration)
+          }
+        }}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+        onError={() => setAudioError(true)}
+      />
+
       {/* Authentic CD-IELTS Header */}
       <header className="h-14 bg-white border-b border-stone-300 px-6 flex items-center justify-between shadow-sm z-20">
         <div className="flex items-center gap-4">
@@ -103,19 +207,27 @@ export function ListeningExamPage() {
           </span>
         </div>
 
-        {/* Audio Status & Volume */}
+        {/* Audio Volume & Top Controls */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200">
-            <Volume2 size={16} className="text-stone-600" />
+            <button
+              onClick={() => setIsMuted(!isMuted)}
+              className="text-stone-600 hover:text-stone-900"
+            >
+              {isMuted ? <VolumeX size={16} className="text-red-500" /> : <Volume2 size={16} />}
+            </button>
             <input
               type="range"
               min="0"
               max="100"
-              value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
+              value={isMuted ? 0 : volume}
+              onChange={(e) => {
+                setVolume(Number(e.target.value))
+                if (isMuted) setIsMuted(false)
+              }}
               className="w-20 accent-primary-600 h-1.5 cursor-pointer"
             />
-            <span className="text-xs font-mono text-stone-500 w-8">{volume}%</span>
+            <span className="text-xs font-mono text-stone-500 w-8">{isMuted ? '0%' : `${volume}%`}</span>
           </div>
 
           {/* Countdown Clock */}
@@ -147,30 +259,125 @@ export function ListeningExamPage() {
 
       {/* Main Examination Body */}
       <main className="flex-1 flex overflow-hidden p-6 gap-6">
-        {/* Left Side: Audio Player indicator & Instructions */}
-        <div className="w-1/3 bg-white border border-stone-300 rounded-xl p-6 shadow-sm overflow-y-auto">
-          <div className="flex items-center gap-2 text-primary-700 bg-primary-50 p-3 rounded-lg border border-primary-200 mb-5">
-            <Headphones size={20} className="animate-pulse" />
-            <div>
-              <div className="font-bold text-xs">Audio Playing (Original Cambridge Recording)</div>
-              <div className="text-[11px] text-stone-500">You will hear the recording once only.</div>
+        {/* Left Side: Interactive Audio Player & Instructions */}
+        <div className="w-1/3 bg-white border border-stone-300 rounded-xl p-6 shadow-sm overflow-y-auto flex flex-col justify-between">
+          <div>
+            {/* Interactive Audio Player Deck */}
+            <div className={`p-4 rounded-xl border mb-5 transition-all ${
+              isPlaying
+                ? 'bg-blue-50/80 border-blue-200 ring-2 ring-blue-500/20'
+                : 'bg-stone-50 border-stone-200'
+            }`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-lg ${isPlaying ? 'bg-blue-600 text-white animate-pulse' : 'bg-stone-200 text-stone-600'}`}>
+                    <Headphones size={18} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-xs text-stone-900">
+                      {isPlaying ? 'Audio Track Playing' : 'Official Cambridge Audio'}
+                    </h3>
+                    <span className="text-[10px] text-stone-500 font-mono block">
+                      Part {currentPart} ({formatTimer(currentTime)} / {formatTimer(duration)})
+                    </span>
+                  </div>
+                </div>
+
+                {/* Big Play / Pause Button */}
+                <button
+                  onClick={togglePlay}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shadow transition-all cursor-pointer ${
+                    isPlaying
+                      ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                      : 'bg-primary-600 hover:bg-primary-700 text-white ring-4 ring-primary-100'
+                  }`}
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause size={14} fill="currentColor" />
+                      <span>Pause</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play size={14} fill="currentColor" />
+                      <span>Play Audio</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Progress bar scrubber */}
+              <div className="space-y-1">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 1800}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="w-full accent-blue-600 h-1.5 cursor-pointer bg-stone-200 rounded-lg"
+                />
+                <div className="flex justify-between text-[10px] text-stone-400 font-mono">
+                  <span>{formatTimer(currentTime)}</span>
+                  <span>Part {currentPart}</span>
+                  <span>{formatTimer(duration)}</span>
+                </div>
+              </div>
+
+              {/* Quick Seek buttons */}
+              <div className="flex items-center justify-center gap-3 mt-3 pt-2 border-t border-stone-200/60 text-xs text-stone-600">
+                <button
+                  onClick={() => skipSeconds(-5)}
+                  className="flex items-center gap-1 hover:text-stone-900 bg-white px-2 py-1 rounded border border-stone-200 text-[11px]"
+                >
+                  <Rewind size={12} /> -5s
+                </button>
+                <button
+                  onClick={() => skipSeconds(5)}
+                  className="flex items-center gap-1 hover:text-stone-900 bg-white px-2 py-1 rounded border border-stone-200 text-[11px]"
+                >
+                  <FastForward size={12} /> +5s
+                </button>
+
+                {/* Speed toggle for practice */}
+                <button
+                  onClick={() => {
+                    const next = playbackSpeed === 1.0 ? 1.2 : playbackSpeed === 1.2 ? 0.8 : 1.0
+                    setPlaybackSpeed(next)
+                    if (audioRef.current) audioRef.current.playbackRate = next
+                  }}
+                  className="text-[11px] font-mono font-bold bg-white px-2 py-1 rounded border border-stone-200 hover:bg-stone-50"
+                >
+                  {playbackSpeed}x Speed
+                </button>
+              </div>
+
+              {audioError && (
+                <div className="mt-2 text-[11px] text-amber-700 bg-amber-50 p-2 rounded border border-amber-200">
+                  Click the <strong>Play Audio</strong> button above to activate audio stream.
+                </div>
+              )}
+            </div>
+
+            {/* Instructions */}
+            <h2 className="text-base font-bold text-stone-900 border-b border-stone-200 pb-2 mb-3">
+              Part {currentPart}: Instructions
+            </h2>
+
+            <div className="text-xs text-stone-700 space-y-3 leading-relaxed">
+              <p className="font-semibold text-stone-900">
+                Questions 1–10: Complete the notes below.
+              </p>
+              <p className="bg-stone-50 p-2.5 rounded border border-stone-200 font-medium text-stone-800">
+                Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.
+              </p>
+              <p>
+                Listen carefully to the conversation. Type your answers directly into the corresponding numbered boxes on the right.
+              </p>
             </div>
           </div>
 
-          <h2 className="text-base font-bold text-stone-900 border-b border-stone-200 pb-2 mb-3">
-            Part {currentPart}: Instructions
-          </h2>
-
-          <div className="text-xs text-stone-700 space-y-3 leading-relaxed">
-            <p className="font-semibold text-stone-900">
-              Questions 1–10: Complete the notes below.
-            </p>
-            <p className="bg-stone-50 p-2.5 rounded border border-stone-200 font-medium text-stone-800">
-              Write <strong>ONE WORD AND/OR A NUMBER</strong> for each answer.
-            </p>
-            <p>
-              Listen carefully to the conversation between an employment agent and an applicant. Type your answers directly into the corresponding numbered boxes.
-            </p>
+          <div className="text-[11px] text-stone-400 border-t border-stone-100 pt-3">
+            In official CD-IELTS, candidate headphones are active continuously throughout all 4 parts.
           </div>
         </div>
 
@@ -237,10 +444,7 @@ export function ListeningExamPage() {
           {([1, 2, 3, 4] as const).map((p) => (
             <button
               key={p}
-              onClick={() => {
-                setCurrentPart(p)
-                setCurrentQuestion((p - 1) * 10 + 1)
-              }}
+              onClick={() => jumpToPart(p)}
               className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${
                 currentPart === p
                   ? 'bg-stone-900 text-white shadow-sm'
