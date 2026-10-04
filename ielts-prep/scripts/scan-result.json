@@ -1,0 +1,212 @@
+{
+  "scannedAt": "2026-10-04T17:58:20.524Z",
+  "contentRoot": "F:\\IeltsPrep\\IELTS_Cambridge",
+  "books": [
+    {
+      "folderName": "cambridge_10",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_10",
+      "seriesNumber": 10,
+      "slug": "cambridge-ielts-10",
+      "title": "Cambridge IELTS 10 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_10_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_10_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_10_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_10_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_10_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_11",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_11",
+      "seriesNumber": 11,
+      "slug": "cambridge-ielts-11",
+      "title": "Cambridge IELTS 11 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_11_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_11_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_11_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_11_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_11_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_12",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_12",
+      "seriesNumber": 12,
+      "slug": "cambridge-ielts-12",
+      "title": "Cambridge IELTS 12 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_12_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_12_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_12_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_12_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_12_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_13",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_13",
+      "seriesNumber": 13,
+      "slug": "cambridge-ielts-13",
+      "title": "Cambridge IELTS 13 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_13_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_13_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_13_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_13_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_13_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_14",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_14",
+      "seriesNumber": 14,
+      "slug": "cambridge-ielts-14",
+      "title": "Cambridge IELTS 14 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_14_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_14_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_14_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_14_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_14_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_15",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_15",
+      "seriesNumber": 15,
+      "slug": "cambridge-ielts-15",
+      "title": "Cambridge IELTS 15 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_15_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_15_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_15_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_15_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_15_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_16",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_16",
+      "seriesNumber": 16,
+      "slug": "cambridge-ielts-16",
+      "title": "Cambridge IELTS 16 Academic",
+      "pdfs": [
+        "Cambridge_IELTS_16_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_16_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_16_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_16_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_16_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_17",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_17",
+      "seriesNumber": 17,
+      "slug": "cambridge-ielts-17",
+      "title": "Cambridge IELTS 17 Academic",
+      "pdfs": [
+        "CAMBRIDGE 17 TEST.pdf",
+        "Cambridge_IELTS_17_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_17_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_17_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_17_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_17_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    },
+    {
+      "folderName": "cambridge_18",
+      "folderPath": "F:\\IeltsPrep\\IELTS_Cambridge\\cambridge_18",
+      "seriesNumber": 18,
+      "slug": "cambridge-ielts-18",
+      "title": "Cambridge IELTS 18 Academic",
+      "pdfs": [
+        "Cambridge IELTS 18 L [@cambridge_library].pdf",
+        "Cambridge_IELTS_18_Academic_www.ieltsportal.com.pdf"
+      ],
+      "mp3s": [
+        "Cambridge_IELTS_18_-_Listening_Test_1.mp3",
+        "Cambridge_IELTS_18_-_Listening_Test_2.mp3",
+        "Cambridge_IELTS_18_-_Listening_Test_3.mp3",
+        "Cambridge_IELTS_18_-_Listening_Test_4.mp3"
+      ],
+      "testsDetected": 4,
+      "isPerTestAudio": true,
+      "warnings": [
+        "ℹ️  Audio is per-test (4 files, 1 per test). Section timestamps must be set manually in admin."
+      ]
+    }
+  ],
+  "vocabPdfs": [
+    "1200_most_commonly_repeated_words.pdf",
+    "Idioms_Phrases_Proverbs_Live_MCQ_Y7X9omo.pdf",
+    "IELTS_Listening_1700_most_common_words.pdf",
+    "Job_Vocabulary_Part-2_fbzkqcn.pdf",
+    "Live_MCQ_Job_Vocabulary_part-1.pdf",
+    "Live_MCQ_Vocabulary_520__Updated_31_Oct_2024.pdf"
+  ],
+  "summary": {
+    "totalBooks": 9,
+    "totalAudio": 36,
+    "totalPdfs": 11,
+    "vocabPdfs": 6,
+    "warnings": 9
+  }
+}
