@@ -283,28 +283,51 @@ export function ListeningExamPage() {
                   </div>
                 </div>
 
-                {/* Big Play / Pause Button */}
+                {/* Big High-Contrast Play / Pause Button */}
                 <button
+                  type="button"
+                  id="listening-play-audio-btn"
                   onClick={togglePlay}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shadow transition-all cursor-pointer ${
-                    isPlaying
-                      ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                      : 'bg-primary-600 hover:bg-primary-700 text-white ring-4 ring-primary-100'
-                  }`}
+                  style={{
+                    backgroundColor: isPlaying ? '#d97706' : '#1d4ed8',
+                    color: '#ffffff',
+                    boxShadow: isPlaying ? '0 4px 12px rgba(217, 119, 6, 0.4)' : '0 4px 14px rgba(29, 78, 216, 0.45)',
+                  }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black tracking-wide uppercase transition-all cursor-pointer hover:opacity-95 active:scale-95 select-none text-white shrink-0 border border-white/20"
                 >
                   {isPlaying ? (
                     <>
-                      <Pause size={14} fill="currentColor" />
-                      <span>Pause</span>
+                      <Pause size={16} fill="#ffffff" className="text-white" />
+                      <span className="text-white font-bold">PAUSE AUDIO</span>
                     </>
                   ) : (
                     <>
-                      <Play size={14} fill="currentColor" />
-                      <span>Play Audio</span>
+                      <Play size={16} fill="#ffffff" className="text-white" />
+                      <span className="text-white font-bold">PLAY AUDIO ▶</span>
                     </>
                   )}
                 </button>
               </div>
+
+              {/* High-visibility notification & quick play banner */}
+              {!isPlaying && (
+                <div
+                  onClick={togglePlay}
+                  style={{ backgroundColor: '#eff6ff', borderColor: '#93c5fd' }}
+                  className="mb-3 py-2.5 px-3 rounded-lg border flex items-center justify-between cursor-pointer hover:bg-blue-100 transition-all shadow-xs"
+                >
+                  <span className="flex items-center gap-2 text-xs font-semibold text-blue-900">
+                    <Headphones size={16} className="text-blue-700 animate-bounce" />
+                    <span>Click here or button above to start audio</span>
+                  </span>
+                  <span
+                    style={{ backgroundColor: '#1d4ed8', color: '#ffffff' }}
+                    className="text-xs px-3 py-1 rounded-md font-bold shadow-xs hover:bg-blue-800"
+                  >
+                    START AUDIO ▶
+                  </span>
+                </div>
+              )}
 
               {/* Progress bar scrubber */}
               <div className="space-y-1">
