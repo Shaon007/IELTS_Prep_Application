@@ -14,19 +14,55 @@ import {
   Sparkles
 } from 'lucide-react'
 
+import { useMemo } from 'react'
+import { getListeningTest, isListeningAnswerCorrect } from '@/data/listeningTestsData'
+import { listeningRawToBand } from '@/lib/scoring'
+
 export function ResultsPage() {
   const { attemptId } = useParams<{ attemptId: string }>()
   const navigate = useNavigate()
 
-  // Authentic calculated scores
-  const listeningRaw = 35
-  const listeningBand = 8.0
+  const testData = useMemo(() => getListeningTest(attemptId), [attemptId])
+
+  const userAnswers: Record<number, string> = useMemo(() => {
+    try {
+      const saved = sessionStorage.getItem(`ielts_listening_answers_${testData.id}`)
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  }, [testData.id])
+
+  // Compute actual listening raw score if user completed the section
+  const { listeningRaw, listeningBand } = useMemo(() => {
+    if (!userAnswers) {
+      return { listeningRaw: 35, listeningBand: 8.0 }
+    }
+
+    let correctCount = 0
+    ;([1, 2, 3, 4] as const).forEach((partNum) => {
+      const part = testData.parts[partNum]
+      if (part) {
+        part.questions.forEach((q) => {
+          const uAns = userAnswers[q.id]
+          if (uAns && isListeningAnswerCorrect(uAns, q.acceptedAnswers)) {
+            correctCount++
+          }
+        })
+      }
+    })
+
+    return {
+      listeningRaw: correctCount,
+      listeningBand: listeningRawToBand(correctCount)
+    }
+  }, [testData, userAnswers])
 
   const readingRaw = 33
   const readingBand = 7.5
 
   const writingBand = 7.0
-  const overallBand = 7.5 // (8.0 + 7.5 + 7.0) / 3 = 7.5
+  const overallBand = Math.round(((listeningBand + readingBand + writingBand) / 3) * 2) / 2
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-4">

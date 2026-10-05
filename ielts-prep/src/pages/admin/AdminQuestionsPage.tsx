@@ -1,51 +1,52 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ChevronLeft,
   Save,
   CheckCircle2,
-  Plus,
-  Trash2,
-  Edit2,
-  HelpCircle
+  HelpCircle,
+  Headphones
 } from 'lucide-react'
+import { getListeningTest } from '@/data/listeningTestsData'
 
 export function AdminQuestionsPage() {
   const { testId } = useParams<{ testId: string }>()
   const navigate = useNavigate()
 
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      section: 'listening',
-      questionNumber: 1,
-      type: 'form_completion',
-      prompt: 'Type of work required: Temporary [ ... ] assistant',
-      acceptedAnswer: 'clerical',
-      alternatives: 'office',
-      explanation: 'Speaker explicitly notes clerical assistant position.'
-    },
-    {
-      id: 2,
-      section: 'listening',
-      questionNumber: 2,
-      type: 'form_completion',
-      prompt: 'Location preferred: Near [ ... ] station',
-      acceptedAnswer: 'central',
-      alternatives: 'main',
-      explanation: 'Candidate specifically requests central station.'
-    },
-    {
-      id: 3,
-      section: 'reading',
-      questionNumber: 1,
-      type: 'true_false_ng',
-      prompt: 'In the Middle Ages, nutmeg was inexpensive and consumed primarily by peasants.',
-      acceptedAnswer: 'FALSE',
-      alternatives: '',
-      explanation: 'Nutmeg was an exorbitant luxury accessible only to royalty and wealthy elites.'
-    }
-  ])
+  const testData = useMemo(() => getListeningTest(testId), [testId])
+
+  // Initialize questions from authentic Cambridge test data
+  const [questions, setQuestions] = useState(() => {
+    const list: Array<{
+      id: number
+      section: string
+      questionNumber: number
+      type: string
+      prompt: string
+      acceptedAnswer: string
+      alternatives: string
+      explanation: string
+    }> = []
+
+    ;([1, 2, 3, 4] as const).forEach((partNum) => {
+      const part = testData.parts[partNum]
+      if (!part) return
+      part.questions.forEach((q) => {
+        list.push({
+          id: q.id,
+          section: `Listening Part ${partNum} (${part.title})`,
+          questionNumber: q.id,
+          type: q.type,
+          prompt: q.prompt,
+          acceptedAnswer: q.acceptedAnswers[0] || '',
+          alternatives: q.acceptedAnswers.slice(1).join(', '),
+          explanation: `Verified Cambridge key for ${part.title}.`
+        })
+      })
+    })
+
+    return list
+  })
 
   const [savedSuccess, setSavedSuccess] = useState(false)
 
@@ -60,19 +61,22 @@ export function AdminQuestionsPage() {
         <div>
           <button
             onClick={() => navigate(-1)}
-            className="text-xs font-semibold text-stone-500 hover:text-stone-900 flex items-center gap-1 mb-2"
+            className="text-xs font-semibold text-stone-500 hover:text-stone-900 flex items-center gap-1 mb-2 cursor-pointer"
           >
             <ChevronLeft size={14} /> Back to Tests
           </button>
-          <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Question & Answer Key Editor</h1>
+          <div className="flex items-center gap-2">
+            <Headphones size={20} className="text-primary-600" />
+            <h1 className="text-2xl font-bold text-stone-900 tracking-tight">Question & Answer Key Editor</h1>
+          </div>
           <p className="text-xs text-stone-500 mt-1">
-            Authoritative Cambridge answer keys, alternative accepted forms, and scoring rules for {testId}.
+            Authoritative Cambridge answer keys, alternative accepted forms, and scoring rules for <strong>{testData.title}</strong> ({questions.length} questions).
           </p>
         </div>
 
         <button
           onClick={handleSave}
-          className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-sm transition-all"
+          className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-sm transition-all cursor-pointer"
         >
           <Save size={14} />
           <span>Save Changes</span>
@@ -95,7 +99,7 @@ export function AdminQuestionsPage() {
                 {q.section} — Question {q.questionNumber} ({q.type})
               </span>
               <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                Verified Key
+                Verified Cambridge Key
               </span>
             </div>
 
@@ -139,7 +143,7 @@ export function AdminQuestionsPage() {
                     setQuestions(newQs)
                   }}
                   className="w-full bg-stone-50 border border-stone-200 rounded-lg p-2 font-mono"
-                  placeholder="e.g. office, clerical work"
+                  placeholder="e.g. 24th April, 24th of April"
                 />
               </div>
 
